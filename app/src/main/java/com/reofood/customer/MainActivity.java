@@ -8,6 +8,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar progress;
     private LinearLayout noInternet;
     private final int REQUEST_LOCATION_PERMISSION = 1;
+    String url = "https://reofood.com.bd";
 
 
 
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setDomStorageEnabled(true);
         webView.setWebChromeClient(new WebChromeClient());
         webView.setWebViewClient(new myWebViewClient());
+        webView.setWebViewClient(new Callback());
 
 
 
@@ -98,7 +101,12 @@ public class MainActivity extends AppCompatActivity {
         if (wifi.isConnected()|| mobile.isConnected()){
             webView.setVisibility(View.VISIBLE);
             noInternet.setVisibility(View.INVISIBLE);
-            webView.loadUrl("https://reofood.com.bd");
+            if(url =="https://reofood.com.bd" ){
+
+            webView.loadUrl("url");
+            }else{
+                Toast.makeText(this, "only selected website will be loaded", Toast.LENGTH_SHORT).show();
+            };
         }else{
             webView.setVisibility(View.INVISIBLE);
             noInternet.setVisibility(View.VISIBLE);
@@ -126,5 +134,12 @@ public class MainActivity extends AppCompatActivity {
             EasyPermissions.requestPermissions(this, "Please grant the location permission", REQUEST_LOCATION_PERMISSION, perms);
         }
     }
+    private class Callback extends WebViewClient {
+        @Override
+        public boolean shouldOverrideKeyEvent(WebView view, KeyEvent event) {
+            return false;
+        }
+    }
+
 
 }
