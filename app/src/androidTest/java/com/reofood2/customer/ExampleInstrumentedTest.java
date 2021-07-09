@@ -1,4 +1,4 @@
-package com.reofood.customer;
+package com.reofood2.customer;
 
 import android.content.Context;
 

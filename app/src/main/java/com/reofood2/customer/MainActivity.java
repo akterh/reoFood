@@ -1,57 +1,77 @@
-package com.reofood.customer;
+package com.reofood2.customer;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 
 import android.Manifest;
 import android.content.Context;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
-import android.view.KeyEvent;
+
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
+import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
+
 import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.Toast;
+
+
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class MainActivity extends AppCompatActivity {
     private WebView webView;
-    private SwipeRefreshLayout swipe;
-    private ProgressBar progress;
     private LinearLayout noInternet;
     private final int REQUEST_LOCATION_PERMISSION = 1;
-    String url = "https://reofood.com.bd";
-
-
+    String url = "https://reo.technofelia.com/delivery";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         webView = findViewById(R.id.webView);
-        swipe = findViewById(R.id.swipe);
-        progress= findViewById(R.id.progressBar);
         noInternet = findViewById(R.id.noInternet);
-
-
-
-
 
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setAllowFileAccess(true);
         webView.getSettings().getAllowFileAccessFromFileURLs();
         webView.getSettings().setAllowContentAccess(true);
         webView.getSettings().setDomStorageEnabled(true);
-        webView.setWebChromeClient(new WebChromeClient());
-        webView.setWebViewClient(new myWebViewClient());
-        webView.setWebViewClient(new Callback());
+        WebView.setWebContentsDebuggingEnabled(true);
 
+        webView.setWebChromeClient(new WebChromeClient()
+                                   {
+                                       public void onGeolocationPermissionsShowPrompt(String origin,
+                                                                                      GeolocationPermissions.Callback callback) {
+                                           callback.invoke(origin, true, false);
+                                       }
+
+
+                                   }
+
+
+
+        );
+
+        webView.setWebViewClient(new WebViewClient()
+
+
+        );
 
 
 
@@ -59,17 +79,20 @@ public class MainActivity extends AppCompatActivity {
         requestLocationPermission();
 
 
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
 
-
-
-
-
-        swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                webView.reload();
+                notificationBell();
+//                  runs a method every 2000ms
+//       example    runThisEvery2seconds();
             }
-        });
+        }, 2000);
+
+
+
+
+
 
 
     }
@@ -83,16 +106,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class myWebViewClient extends WebViewClient {
-        @Override
-        public void onPageFinished(WebView view, String url) {
 
-
-           progress.setVisibility(View.GONE);
-           swipe.setRefreshing(false);
-        super.onPageFinished(view, url);
-        }
-    }
 
     private void checkInternet(){
         ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -101,12 +115,7 @@ public class MainActivity extends AppCompatActivity {
         if (wifi.isConnected()|| mobile.isConnected()){
             webView.setVisibility(View.VISIBLE);
             noInternet.setVisibility(View.INVISIBLE);
-            if(url =="https://reofood.com.bd" ){
-
-            webView.loadUrl("url");
-            }else{
-                Toast.makeText(this, "only selected website will be loaded", Toast.LENGTH_SHORT).show();
-            };
+            webView.loadUrl(url);
         }else{
             webView.setVisibility(View.INVISIBLE);
             noInternet.setVisibility(View.VISIBLE);
@@ -128,18 +137,47 @@ public class MainActivity extends AppCompatActivity {
     public void requestLocationPermission() {
         String[] perms = {Manifest.permission.ACCESS_FINE_LOCATION};
         if(EasyPermissions.hasPermissions(this, perms)) {
-            Toast.makeText(this, "Permission already granted", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "Permission already granted", LENGTH_SHORT).show();
         }
         else {
             EasyPermissions.requestPermissions(this, "Please grant the location permission", REQUEST_LOCATION_PERMISSION, perms);
         }
+
+
+
+
+
     }
-    private class Callback extends WebViewClient {
-        @Override
-        public boolean shouldOverrideKeyEvent(WebView view, KeyEvent event) {
-            return false;
-        }
+    public void notificationBell(){
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url ="https://reo.technofelia.com/public/api/delivery/get-new-orders/";
+
+
+ //Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                response -> {
+                    Log.d("response",response);
+
+//                     Display the first 500 characters of the response string.
+                    try {
+                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+                        Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+                        r.play();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }, error ->error.getMessage());
+
+
+                 queue.add(stringRequest);
+
+
+
+
+
     }
+
 
 
 }

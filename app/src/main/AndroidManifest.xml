@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.reofood.customer">
+    package="com.reofood2.customer">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -14,14 +14,16 @@
         android:roundIcon="@drawable/ic_launcher__3_"
         android:supportsRtl="true"
         android:theme="@style/Theme.Techweb">
-        <activity android:name="com.reofood.customer.SplashActivity">
+        <activity android:name="com.reofood2.customer.SplashActivity"
+            android:noHistory="true"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.reofood.customer.MainActivity">
+        <activity android:name="com.reofood2.customer.MainActivity">
 
         </activity>
     </application>
